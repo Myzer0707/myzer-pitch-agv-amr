@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Myzer — Pitch Deck AGV/AMR · 3D-LiDAR-Navigation</title>
+
+<!-- =========================================================
+     PITCH DECK MYZER-001 — Nawigacja 3D LiDAR (MyFee/Myzer)
+     Wersja ROBOCZA 2026-06-14. Brand Myzer Intra (dark+orange).
+     Stack: frontend-slides (Zhang) — zero-dependency HTML.
+     Źródło treści: WIEDZA_NAWIGACJA_3D.md + stary deck MyFee 06.2025
+       + artykuł dr. J. Będkowskiego (EnRicH 2023) + research VC/rynek.
+     Slajdy oznaczone [PYTANIE] / [DO UZUPEŁNIENIA] = robocze, czekają na Artura.
+     ========================================================= -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE (frontend-slides)
+   =========================================== */
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide {
+    width: 100vw; height: 100vh; height: 100dvh; overflow: hidden;
+    scroll-snap-align: start; display: flex; flex-direction: column; position: relative;
+}
+.slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; max-height: 100%; overflow: hidden; padding: var(--slide-padding); }
+:root {
+    --title-size: clamp(1.5rem, 5vw, 4rem);
+    --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+    --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+    --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+    --small-size: clamp(0.65rem, 1vw, 0.875rem);
+    --slide-padding: clamp(1rem, 4vw, 4rem);
+    --content-gap: clamp(0.5rem, 2vw, 2rem);
+    --element-gap: clamp(0.25rem, 1vw, 1rem);
+}
+.card, .container, .content-box { max-width: min(90vw, 1000px); max-height: min(80vh, 700px); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: clamp(0.5rem, 1.5vw, 1rem); }
+img, .image-container { max-width: 100%; max-height: min(50vh, 400px); object-fit: contain; }
+@media (max-height: 700px) { :root { --slide-padding: clamp(0.75rem, 3vw, 2rem); --content-gap: clamp(0.4rem, 1.5vw, 1rem); --title-size: clamp(1.25rem, 4.5vw, 2.5rem); --h2-size: clamp(1rem, 3vw, 1.75rem); } }
+@media (max-height: 600px) { :root { --slide-padding: clamp(0.5rem, 2.5vw, 1.5rem); --content-gap: clamp(0.3rem, 1vw, 0.75rem); --title-size: clamp(1.1rem, 4vw, 2rem); --body-size: clamp(0.7rem, 1.2vw, 0.95rem); } .nav-dots, .keyboard-hint, .decorative { display: none; } }
+@media (max-height: 500px) { :root { --slide-padding: clamp(0.4rem, 2vw, 1rem); --title-size: clamp(1rem, 3.5vw, 1.5rem); --h2-size: clamp(0.9rem, 2.5vw, 1.25rem); --body-size: clamp(0.65rem, 1vw, 0.85rem); } }
+@media (max-width: 600px) { :root { --title-size: clamp(1.25rem, 7vw, 2.5rem); } .grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } html { scroll-behavior: auto; } }
+
+/* ===========================================
+   BRAND MYZER — paleta i typografia
+   =========================================== */
+:root {
+    --dark:   #141A22;   /* Myzer Dark */
+    --dark-2: #1c242e;
+    --dark-3: #232d39;
+    --orange: #EB5D30;   /* Myzer Orange — akcent/CTA */
+    --orange-soft: #f58220;
+    --grey:   #F3F3F4;   /* Myzer Grey */
+    --yellow: #ECDC00;   /* dane/wykresy */
+    --line:   rgba(243,243,244,0.12);
+    --muted:  #8B9AA8;
+    --font: 'Soleto','Montserrat',sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--dark); color: var(--grey); -webkit-font-smoothing: antialiased; }
+
+/* Tło: siatka punktów (chmura LiDAR) + winieta */
+body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(235,93,48,0.10) 1px, transparent 1.4px);
+    background-size: 26px 26px;
+    mask-image: radial-gradient(ellipse 120% 90% at 70% 30%, #000 35%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 120% 90% at 70% 30%, #000 35%, transparent 80%);
+}
+.slide-content { position: relative; z-index: 1; }
+
+/* Logo + sygnet w rogach */
+.brand-mark { position: absolute; top: clamp(1rem,2.5vw,2rem); left: clamp(1rem,3vw,3rem); height: clamp(34px,4.6vw,62px); z-index: 5; opacity: .97; }
+/* Logo Myzer w prawym górnym rogu KAŻDEGO slajdu (poza tytułem #s1 i zamykającym #s16, które mają duże logo top-left) */
+.slide:not(#s1):not(#s16)::after { content:""; position:absolute; top:clamp(.9rem,2.3vw,1.8rem); left:clamp(1rem,3vw,3rem); width:clamp(76px,9vw,120px); height:clamp(20px,2.4vw,32px); background:url('../assets/myzer_logo_white.png') no-repeat top left; background-size:contain; opacity:.8; z-index:6; pointer-events:none; }
+.corner-sig { position: absolute; bottom: clamp(0.8rem,2vw,1.6rem); right: clamp(1rem,3vw,3rem); height: clamp(18px,2vw,28px); opacity: .55; z-index: 5; }
+.tagline { position: absolute; bottom: clamp(1.5rem,3.6vw,3rem); right: clamp(1rem,3vw,3rem); z-index: 7; font-family: var(--font); font-size: clamp(.85rem,1.7vw,1.25rem); font-weight: 300; letter-spacing: .04em; color: #ffffff; }
+.tagline b { color: var(--orange); font-weight: 400; }
+.pageno { position: absolute; bottom: clamp(0.8rem,2vw,1.6rem); left: clamp(1rem,3vw,3rem); font-family: var(--mono); font-size: var(--small-size); color: var(--muted); z-index: 5; letter-spacing: .05em; }
+
+/* Eyebrow / sekcja */
+.eyebrow { font-family: var(--mono); font-size: var(--small-size); letter-spacing: .28em; text-transform: uppercase; color: var(--orange); margin-bottom: clamp(.6rem,1.4vw,1.1rem); display: flex; align-items: center; gap: .7em; }
+.eyebrow::before { content: ""; width: clamp(18px,3vw,40px); height: 2px; background: var(--orange); display: inline-block; }
+
+h1 { font-size: var(--title-size); font-weight: 800; line-height: 1.02; letter-spacing: -0.02em; }
+h2 { font-size: var(--h2-size); font-weight: 800; line-height: 1.06; letter-spacing: -0.015em; margin-bottom: var(--content-gap); }
+h3 { font-size: var(--h3-size); font-weight: 700; line-height: 1.15; }
+p  { font-size: var(--body-size); line-height: 1.55; color: #c9d3dd; }
+.lead { font-size: clamp(0.95rem,2vw,1.4rem); color: #d7e0e8; line-height: 1.5; }
+strong, b { color: var(--grey); font-weight: 700; }
+.o { color: var(--orange); } .y { color: var(--yellow); } .mono { font-family: var(--mono); }
+
+/* Karty */
+.cards { display: grid; gap: clamp(.5rem,1.4vw,1.1rem); width: 100%; }
+.cards.c3 { grid-template-columns: repeat(3,1fr); }
+.cards.c2 { grid-template-columns: repeat(2,1fr); }
+.cards.c4 { grid-template-columns: repeat(4,1fr); }
+@media (max-width:780px){ .cards.c3,.cards.c4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width:560px){ .cards.c2,.cards.c3,.cards.c4 { grid-template-columns: 1fr; } }
+.card-b {
+    background: linear-gradient(160deg, var(--dark-2), var(--dark-3));
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: clamp(.8rem,1.8vw,1.5rem); position: relative; overflow: hidden;
+}
+.card-b::before { content:""; position:absolute; top:0; left:0; width:100%; height:3px; background: var(--orange); transform: scaleX(0); transform-origin: left; transition: transform .5s ease; }
+.is-active .card-b::before { transform: scaleX(1); }
+.card-b .ico { font-family: var(--mono); font-size: clamp(1rem,2vw,1.5rem); color: var(--orange); font-weight: 700; margin-bottom: .5em; }
+.card-b h3 { font-size: clamp(.95rem,1.8vw,1.25rem); margin-bottom: .4em; }
+.card-b p { font-size: clamp(.72rem,1.3vw,.95rem); line-height: 1.45; color: #aebac6; }
+.agv-img { display:block; width:100%; height:clamp(92px,15vh,155px); object-fit:contain; margin-bottom:.5em; filter: drop-shadow(0 6px 13px rgba(0,0,0,.5)); }
+.logos-strip { display:flex; align-items:center; gap:clamp(.9rem,2.4vw,2rem); margin-top:clamp(.9rem,2vw,1.5rem); flex-wrap:wrap; }
+.logos-strip .lbl { font-family:var(--mono); font-size:var(--small-size); color:var(--muted); letter-spacing:.12em; text-transform:uppercase; }
+.logos-strip img { height:clamp(22px,3vw,38px); width:auto; filter:brightness(0) invert(1); opacity:.85; }
+
+/* Slajd 13 — moat: grafiki + większy tekst */
+#s13 .agv-img { height:clamp(78px,12.5vh,132px); }
+#s13 .card-b h3 { font-size:clamp(1rem,1.9vw,1.38rem); margin-bottom:.3em; }
+#s13 .card-b p { font-size:clamp(.82rem,1.45vw,1.08rem); line-height:1.42; color:#c3cdd7; }
+#s13 .ip-bar { border-color:rgba(235,93,48,.5); background:rgba(235,93,48,.07); }
+#s13 .ip-bar h3 { font-size:clamp(1.05rem,2vw,1.5rem); color:var(--orange); margin-bottom:.25em; }
+#s13 .ip-bar p { font-size:clamp(.85rem,1.5vw,1.15rem); line-height:1.5; color:#e7d9d2; }
+
+/* Financials — unit economics + wykres skalowalności */
+.ue { display:grid; gap:.15rem; width:100%; }
+.ue-row { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--line); padding:clamp(.45rem,1.1vw,.7rem) 0; gap:1em; }
+.ue-row .k { color:#c9d3dd; font-size:clamp(.8rem,1.45vw,1.08rem); line-height:1.25; }
+.ue-row .v { font-family:var(--mono); font-weight:700; font-size:clamp(.85rem,1.7vw,1.25rem); color:var(--grey); white-space:nowrap; }
+.ue-row.hl .v { color:var(--orange); } .ue-row.hl .k { color:var(--grey); font-weight:600; }
+.fin-chart { display:flex; align-items:flex-end; justify-content:space-around; gap:clamp(.6rem,2.5vw,2rem); height:clamp(140px,27vh,250px); width:100%; }
+.fin-bar { flex:1; max-width:120px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+.fin-bar .val { font-family:var(--mono); font-weight:700; color:var(--grey); font-size:clamp(.78rem,1.55vw,1.22rem); margin-bottom:.4em; white-space:nowrap; }
+.fin-bar .val b { color:var(--orange); }
+.fin-bar .col { width:100%; background:linear-gradient(180deg,#3d4a58,#28313b); border-radius:8px 8px 0 0; box-shadow:0 6px 18px rgba(0,0,0,.35); transition:height .9s cubic-bezier(.16,1,.3,1); display:flex; flex-direction:column; overflow:hidden; }
+.fin-bar .col .eb { width:100%; background:linear-gradient(180deg,var(--orange),#b8431d); box-shadow:0 0 16px rgba(235,93,48,.4); }
+.fin-bar .yr { font-family:var(--mono); font-size:clamp(.7rem,1.3vw,.95rem); color:var(--grey); margin-top:.6em; }
+.fin-bar .units { font-size:clamp(.62rem,1.15vw,.85rem); color:#9fb0bd; margin-top:.15em; text-align:center; }
+.fin-bar .units b { color:var(--orange); display:block; margin-top:.1em; }
+.fin-legend { display:flex; gap:1.2em; margin-bottom:.6em; font-family:var(--mono); font-size:clamp(.6rem,1.05vw,.78rem); color:#9fb0bd; }
+.fin-legend span { display:inline-flex; align-items:center; gap:.4em; }
+.fin-legend i { width:11px; height:11px; border-radius:2px; display:inline-block; }
+
+/* Use of funds — paski poziome */
+.uof { display:grid; gap:clamp(.5rem,1.3vw,.95rem); width:100%; }
+.uof-row .top { display:flex; justify-content:space-between; align-items:baseline; font-size:clamp(.76rem,1.4vw,1.05rem); margin-bottom:.28em; gap:.8em; }
+.uof-row .lab { color:var(--grey); font-weight:600; } .uof-row .lab span { display:block; font-weight:400; font-size:.82em; color:var(--muted); }
+.uof-row .amt { font-family:var(--mono); color:var(--orange); font-weight:700; white-space:nowrap; }
+.uof-track { height:9px; background:var(--dark-3); border-radius:6px; overflow:hidden; }
+.uof-fill { height:100%; background:linear-gradient(90deg,var(--orange),#b8431d); border-radius:6px; }
+.ms { display:grid; gap:clamp(.5rem,1.3vw,.9rem); }
+.ms-block { border-left:2px solid var(--orange); padding:.2em 0 .2em 1em; }
+.ms-block .t { font-family:var(--mono); color:var(--orange); font-size:clamp(.66rem,1.2vw,.85rem); letter-spacing:.08em; }
+.ms-block p { font-size:clamp(.74rem,1.35vw,1rem); color:#c9d3dd; line-height:1.4; margin-top:.2em; }
+
+/* P&L — tabela projekcji finansowej */
+.pnl { width:100%; border-collapse:collapse; }
+.pnl th, .pnl td { padding:clamp(.3rem,.95vw,.62rem) clamp(.35rem,1vw,.85rem); text-align:right; border-bottom:1px solid var(--line); font-size:clamp(.7rem,1.4vw,1.05rem); white-space:nowrap; }
+.pnl td:not(:first-child), .pnl th:not(:first-child) { font-family:var(--mono); }
+.pnl th:first-child, .pnl td:first-child { text-align:left; color:#c9d3dd; font-weight:600; }
+.pnl thead th { color:var(--muted); font-size:clamp(.68rem,1.25vw,.92rem); letter-spacing:.04em; text-transform:uppercase; }
+.pnl .r-margin td { color:#9fb0bd; }
+.pnl .r-ebitda td { font-weight:700; color:var(--grey); border-top:2px solid var(--orange); border-bottom:none; padding-top:.55em; }
+.pnl .r-ebitda td.pos { color:var(--orange); }
+.pnl td.be { background:rgba(235,93,48,.16); color:var(--orange); font-weight:700; border-radius:5px; }
+.finbox { border-left:3px solid var(--orange); background:linear-gradient(90deg,rgba(235,93,48,.1),rgba(235,93,48,.02)); border-radius:0 10px 10px 0; padding:clamp(.5rem,1.2vw,.85rem) clamp(.7rem,1.6vw,1.1rem); }
+.finbox .h { font-family:var(--mono); font-size:clamp(.6rem,1.1vw,.78rem); letter-spacing:.1em; color:var(--orange); text-transform:uppercase; }
+.finbox p { font-size:clamp(.74rem,1.32vw,1rem); color:#e7eef4; line-height:1.4; margin-top:.25em; }
+.loc { font-family:var(--mono); font-size:clamp(.72rem,1.4vw,1rem); color:#c9d3dd; display:inline-flex; align-items:center; gap:.45em; }
+.loc::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--orange); box-shadow:0 0 8px var(--orange); flex-shrink:0; }
+.prob-img { width:100%; height:clamp(120px,21vh,200px); object-fit:contain; border-radius:10px; margin-bottom:.5em; display:block; background:rgba(0,0,0,.12); }
+.livox-hero { position:absolute; right:clamp(7rem,23vw,26rem); top:41%; transform:translateY(-50%); z-index:4; margin:0; text-align:center; }
+.livox-hero img { height:clamp(110px,23vh,225px); width:auto; filter:drop-shadow(0 10px 22px rgba(0,0,0,.6)); display:block; }
+.livox-hero figcaption { font-family:var(--mono); font-size:clamp(.55rem,.95vw,.72rem); color:var(--muted); margin-top:.45em; max-width:24ch; }
+.cost { display:grid; gap:clamp(.55rem,1.5vw,1.1rem); width:100%; margin-top:var(--content-gap); }
+.cost-row { display:flex; align-items:center; gap:clamp(.4rem,1.4vw,1.1rem); border:1px solid var(--line); border-radius:14px; padding:clamp(.55rem,1.3vw,1rem) clamp(.7rem,1.6vw,1.3rem); background:linear-gradient(160deg,var(--dark-2),var(--dark-3)); }
+.cost-row.us { border-color:rgba(235,93,48,.5); background:rgba(235,93,48,.08); }
+.cost-lab { min-width:clamp(86px,12vw,150px); font-weight:700; font-size:clamp(.72rem,1.3vw,.98rem); color:var(--grey); line-height:1.2; }
+.cost-lab span { display:block; font-weight:400; font-size:.8em; color:var(--muted); }
+.cost-item { display:flex; flex-direction:column; align-items:center; gap:.15em; }
+.cost-item img { height:clamp(40px,7vh,72px); width:auto; object-fit:contain; filter:drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+.cost-item .pr { font-family:var(--mono); font-size:clamp(.64rem,1.15vw,.88rem); color:#c9d3dd; }
+.cost-op { font-family:var(--mono); font-size:clamp(1rem,2.2vw,1.6rem); color:var(--muted); font-weight:700; }
+.cost-tot { margin-left:clamp(.4rem,1.2vw,1rem); font-family:var(--mono); font-weight:700; font-size:clamp(1.1rem,2.8vw,2.1rem); }
+.cost-row.us .cost-tot { color:var(--orange); }
+.cost-row:not(.us) .cost-tot { color:#c9d3dd; }
+.cost-save { margin-top:var(--content-gap); display:flex; align-items:baseline; gap:1em; flex-wrap:wrap; }
+.cost-save .big { font-family:var(--mono); font-weight:700; font-size:clamp(1.2rem,3vw,2.1rem); color:var(--yellow); }
+@media (max-width:680px){ .cost-lab{min-width:70px} .cost-row{flex-wrap:wrap} }
+
+/* Big stat */
+.statrow { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: clamp(.6rem,2vw,1.6rem); width: 100%; }
+.stat .num { font-family: var(--mono); font-weight: 700; font-size: clamp(1.6rem,4.4vw,3.4rem); color: var(--orange); line-height: 1; letter-spacing: -0.02em; }
+.stat .lbl { font-size: var(--small-size); color: var(--muted); margin-top: .5em; line-height: 1.35; }
+.stat .num.y { color: var(--yellow); } .stat .num.g { color: var(--grey); }
+
+/* Lista z myślnikami pomarańczowymi */
+.dlist { list-style: none; display: grid; gap: clamp(.5rem,1.3vw,1rem); }
+.dlist li { position: relative; padding-left: 1.6em; font-size: var(--body-size); color: #c9d3dd; line-height: 1.5; }
+.dlist li::before { content: ""; position: absolute; left: 0; top: .62em; width: .85em; height: 2px; background: var(--orange); }
+.dlist li strong { display: block; color: var(--grey); margin-bottom: .15em; font-size: 1.02em; }
+
+/* TODO / pytanie do Artura — robocze */
+.todo {
+    border: 1.5px dashed var(--orange); border-radius: 12px;
+    background: rgba(235,93,48,0.07); padding: clamp(.7rem,1.5vw,1.1rem) clamp(.9rem,2vw,1.3rem);
+    margin-top: clamp(.7rem,1.6vw,1.2rem); position: relative;
+}
+.todo::before { content: "❓ PYTANIE / DO UZUPEŁNIENIA"; position: absolute; top: -.75em; left: 1em; background: var(--dark); padding: 0 .6em; font-family: var(--mono); font-size: clamp(.55rem,.95vw,.72rem); letter-spacing: .12em; color: var(--orange); font-weight: 700; }
+.todo p { font-size: clamp(.72rem,1.3vw,.95rem); color: #e7c4b6; line-height: 1.5; }
+.todo p + p { margin-top: .4em; }
+
+/* badge roboczy */
+.draft-badge { position: absolute; top: clamp(1rem,2.5vw,2rem); right: clamp(1rem,3vw,3rem); z-index: 6; font-family: var(--mono); font-size: clamp(.55rem,1vw,.75rem); letter-spacing: .15em; color: var(--dark); background: var(--yellow); padding: .35em .8em; border-radius: 4px; font-weight: 700; }
+
+/* tabela porównań */
+.cmp { width: 100%; border-collapse: collapse; font-size: clamp(.72rem,1.4vw,1rem); }
+.cmp th, .cmp td { padding: clamp(.45rem,1.2vw,.9rem) clamp(.5rem,1.3vw,1rem); text-align: left; border-bottom: 1px solid var(--line); }
+.cmp th { font-family: var(--mono); font-size: var(--small-size); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
+.cmp td.us { color: var(--orange); font-weight: 700; }
+.cmp .row-us { background: rgba(235,93,48,0.08); }
+.cmp .row-us td:first-child { font-weight: 700; color: var(--grey); }
+.tick { color: var(--yellow); } .cross { color: var(--muted); }
+
+/* timeline / roadmap */
+.road { display: grid; grid-template-columns: repeat(4,1fr); gap: clamp(.5rem,1.4vw,1rem); width: 100%; }
+@media (max-width:680px){ .road { grid-template-columns: 1fr 1fr; } }
+.road .ph { border-left: 2px solid var(--orange); padding: .3em 0 .3em 1em; }
+.road .ph .t { font-family: var(--mono); color: var(--orange); font-size: var(--small-size); letter-spacing: .1em; }
+.road .ph h3 { font-size: clamp(.85rem,1.6vw,1.1rem); margin: .25em 0; }
+.road .ph p { font-size: clamp(.68rem,1.2vw,.88rem); color: #aebac6; }
+
+/* dwie kolumny */
+.two { display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(1rem,3vw,3rem); align-items: center; width: 100%; }
+@media (max-width:760px){ .two { grid-template-columns: 1fr; gap: 1rem; } }
+
+/* Title slide */
+.title-wrap { display: flex; flex-direction: column; justify-content: center; height: 100%; }
+.title-proof { display: flex; flex-wrap: wrap; gap: clamp(.5rem,1.4vw,1rem); margin-top: clamp(1rem,2.5vw,2rem); }
+.chip { font-family: var(--mono); font-size: clamp(.6rem,1.1vw,.82rem); letter-spacing: .05em; border: 1px solid var(--line); border-radius: 100px; padding: .5em 1em; color: #cdd6df; background: rgba(255,255,255,.02); }
+.chip b { color: var(--orange); }
+
+/* === Reveal animations === */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+.is-active .reveal { opacity: 1; transform: none; }
+.is-active .reveal:nth-child(1){ transition-delay:.05s } .is-active .reveal:nth-child(2){ transition-delay:.13s }
+.is-active .reveal:nth-child(3){ transition-delay:.21s } .is-active .reveal:nth-child(4){ transition-delay:.29s }
+.is-active .reveal:nth-child(5){ transition-delay:.37s } .is-active .reveal:nth-child(6){ transition-delay:.45s }
+.is-active .reveal:nth-child(7){ transition-delay:.53s }
+.r2 .reveal { transition-delay: 0s; }
+.is-active.r2 .card-b.reveal:nth-child(1){transition-delay:.1s}.is-active.r2 .card-b.reveal:nth-child(2){transition-delay:.2s}.is-active.r2 .card-b.reveal:nth-child(3){transition-delay:.3s}.is-active.r2 .card-b.reveal:nth-child(4){transition-delay:.4s}
+
+/* nav dots + progress */
+.nav-dots { position: fixed; right: clamp(.6rem,1.5vw,1.2rem); top: 50%; transform: translateY(-50%); z-index: 30; display: flex; flex-direction: column; gap: .55rem; }
+.nav-dots button { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--muted); background: transparent; cursor: pointer; padding: 0; transition: all .3s; }
+.nav-dots button.active { background: var(--orange); border-color: var(--orange); transform: scale(1.35); }
+.progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--orange); z-index: 40; width: 0; transition: width .3s ease; }
+.counter { position: fixed; bottom: clamp(.8rem,2vw,1.6rem); left: 50%; transform: translateX(-50%); z-index: 30; font-family: var(--mono); font-size: var(--small-size); color: var(--muted); letter-spacing: .1em; }
+.counter b { color: var(--orange); }
+.kbd-hint { position: fixed; bottom: clamp(.8rem,2vw,1.6rem); right: clamp(1rem,3vw,3rem); z-index:30; font-family: var(--mono); font-size: clamp(.55rem,.9vw,.7rem); color: var(--muted); opacity:.6; }
+@media (max-width:600px){ .nav-dots,.kbd-hint{ display:none; } }
+
+/* gradient headline accent */
+.glow { text-shadow: 0 0 40px rgba(235,93,48,.25); }
+/* Brand key visual — autentyczny sygnet Myzer (stała wizualna = wykadrowany sygnet z logo) */
+.keyvis { position:absolute; right:0; top:50%; transform:translateY(-50%); height:235%; width:auto; z-index:1; opacity:.95; pointer-events:none; }
+@media (max-width:760px){ .keyvis { opacity:.4; } }
+.section-num { font-family: var(--mono); font-size: clamp(3rem,12vw,9rem); font-weight: 700; color: rgba(235,93,48,.10); position: absolute; top: 50%; right: clamp(1rem,4vw,4rem); transform: translateY(-50%); z-index: 0; line-height: 1; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="nav-dots" id="navDots"></nav>
+<div class="counter"><b id="curNo">01</b> / <span id="totNo">16</span></div>
+<div class="kbd-hint">← → Navigation · ESC Übersicht</div>
+
+<!-- ============ SLIDE 1 — TYTUŁ ============ -->
+<!-- NOTATKA: Slajd otwierający. Deskryptor jednozdaniowy + proof-points (DocSend: cover dostaje tylko rzut oka, ale buduje pozycjonowanie). Brand: logo białe lewy-górny róg (zasada Artura). -->
+<section class="slide" id="s1">
+    <img src="../assets/myzer_logo_white.png" class="brand-mark" alt="Myzer">
+    <img class="keyvis" src="../assets/keyvisual_big.png" alt="">
+
+    <div class="slide-content title-wrap">
+        <div class="eyebrow reveal">Myzer × MyFee · Deep-Tech-Robotik</div>
+        <h1 class="reveal glow" style="max-width:58%;">Die <span class="o">3D-LiDAR-Navigation</span>,<br>die jedem AGV-Roboter Autonomie verleiht —<br>zum Preis eines Magnetbands.</h1>
+        <p class="lead reveal" style="margin-top:clamp(1rem,2vw,1.6rem); max-width:62ch;">Ein eigener 3D-LiDAR-Algorithmus mit <span class="o">Zentimetergenauigkeit auf 40 m Distanz</span> — ohne Marker, ohne Infrastruktur, ohne Odometrie und <span class="o">ohne GPU</span>. Myzer baut die Fahrzeuge — MyFee entwickelt die Software.</p>
+        <div class="title-proof reveal">
+            <span class="chip">🏆 <b>EnRicH 2023</b> · Auszeichnung für 3D-Mapping</span>
+            <span class="chip">🏭 <b>3 produktive Installationen</b></span>
+            <span class="chip">⚙️ <b>1 CPU-Kern</b> · 100 Hz · 0× GPU</span>
+            <span class="chip">📐 <b>1–2 cm</b> Genauigkeit</span>
+        </div>
+        <div class="logos-strip reveal">
+            <span class="lbl">Einsätze:</span>
+            <img src="../assets/logo-bsh.svg" alt="BSH">
+            <img src="../assets/logo-nsk.svg" alt="NSK">
+            <img src="../assets/logo-toyota.svg" alt="Toyota">
+        </div>
+        <p class="reveal" style="margin-top:clamp(.9rem,1.8vw,1.4rem); font-family:var(--mono); font-size:var(--small-size); color:var(--muted);">Pitch Deck für Investoren · Pre-Seed / Seed · Artur Myziak, CEO &amp; Co-Founder</p>
+    </div>
+    <figure class="livox-hero reveal">
+        <img src="../assets/livox-hand.png" alt="Livox MID-360 LiDAR auf der Handfläche">
+        <figcaption>Livox MID-360 — der gesamte 3D-Sensor passt in eine Handfläche</figcaption>
+    </figure>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 2 — PROBLEM ============ -->
+<!-- NOTATKA: 3 bóle ze starego decku, zweryfikowane. DocSend: problem czytany wcześnie, decyzja lean-in zapada tu. Kwantyfikacja: >5000 USD/skaner. -->
+<section class="slide" id="s2">
+    <span class="section-num decorative">01</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Problem · Grenzen der heutigen AGV-Navigationstechnologien</div>
+        <h2 class="reveal">Warum verkaufen sich AGV nicht? <span class="o">Einige reale Hürden.</span></h2>
+        <div class="cards c3 r2" style="margin-top:var(--content-gap);">
+            <div class="card-b reveal"><img class="prob-img" src="../assets/problem-cost.png" alt="Hohe Kosten"><h3>Hohe Installationskosten</h3><p>Klassische 2D-Systeme (LiDAR, Encoder, Odometrie) erfordern teure Komponenten sowie eine umfangreiche IT-Infrastruktur. Eine 3D-Navigation mit herkömmlichen Zeilen-LiDAR ist sehr kostspielig — <strong>der Preis eines einzelnen Scanners von &gt;5 000 USD</strong> treibt den Stückpreis des Roboters in die Höhe und begrenzt die Massenautomatisierung.</p></div>
+            <div class="card-b reveal"><img class="prob-img" src="../assets/problem-orientation.png" alt="Orientierungsverlust"><h3>Orientierungsverlust in veränderlichen Umgebungen</h3><p>Die 2D-Navigation (SLAM) verliert die Orientierung bei Änderungen des Hallenlayouts, verschobenen Hindernissen oder Regalen → Lokalisierungsfehler und manuelle Relokalisierung. Selbst klassisches 3D (ICP, FastLIO2) auf Basis von Odometrie und Merkmalspunkten ist instabil, sobald sich die Umgebung verändert.</p></div>
+            <div class="card-b reveal"><img class="prob-img" src="../assets/problem-drift.png" alt="Positionsdrift"><h3>Odometrie und Radschlupf (Positionsdrift)</h3><p>Encoder-basierte Systeme sind anfällig für Schlupf → Positionsfehler auf der Karte (Drift) und die Notwendigkeit von Bedienereingriffen. Die Roboter bewegen sich „blind" → steigendes Kollisionsrisiko.</p></div>
+        </div>
+        <p class="reveal" style="margin-top:var(--content-gap); text-align:center; font-size:clamp(.95rem,2vw,1.5rem); font-weight:800; line-height:1.3; color:var(--grey); max-width:100%;">Die größte Hürde bei der AGV-Einführung ist heute der <span class="o">PREIS pro Roboter</span> — alte, teure Technologie bremst den Markt.<br><span style="font-weight:600; color:#c9d3dd;">Unsere Lösung macht AGV für die Mehrheit kleiner und mittlerer Fabriken zugänglich — nicht nur für Großkonzerne.</span></p>
+    </div>
+    <div class="pageno">02 / PROBLEM</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 3 — WHY NOW ============ -->
+<!-- NOTATKA: Research VC: "why now" niedoceniany a potężny. Twarde liczby: 76% braki kadrowe (Descartes), 3M wakatów kierowców (IRU), IFR momentum. Most: problem → timing → rozwiązanie. -->
+<section class="slide" id="s3">
+    <span class="section-num decorative">02</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Warum jetzt</div>
+        <h2 class="reveal">Warum <span class="o">jetzt</span> — und warum wir.</h2>
+        <p class="reveal" style="margin-top:.45em; font-size:clamp(.95rem,1.9vw,1.4rem); font-weight:600; color:#e7eef4;">Europäische Technologie, die <span class="o">mit Herstellern aus Asien konkurriert</span>.</p>
+        <div class="cards c3 r2" style="margin-top:var(--content-gap);">
+            <div class="card-b reveal"><img class="prob-img" src="../assets/why-cost.png" alt="3D-Kosten sind gefallen"><h3>Die Kosten für 3D sind soeben eingebrochen</h3><p>Günstiges LiDAR (Livox ~659&nbsp;$) + unser SLAM <strong>ohne GPU</strong> → vollwertiges 3D zum Preis eines Magnetbands. Was noch vor Kurzem wirtschaftlich unmöglich war, ist heute realisierbar.</p></div>
+            <div class="card-b reveal"><img class="prob-img" src="../assets/why-demand.png" alt="Dringende Nachfrage"><h3>Die Nachfrage ist dringend</h3><p>Arbeitskräftemangel in der Logistik, Reshoring und steigende Löhne zwingen Fabriken zur Automatisierung. Die Installationen von Logistikrobotern wachsen <strong>+14% J/J</strong> <span class="mono" style="opacity:.6">(IFR World Robotics 2025)</span>.</p></div>
+            <div class="card-b reveal"><img class="prob-img" src="../assets/why-ready.png" alt="Bereit"><h3>Wir sind bereit</h3><p>Validierte Technologie (EnRicH 2023, Installationen bei BSH und NSK) + Vertrag mit Toyota. Wir betreten das Zeitfenster, <strong>bevor sich der Markt konsolidiert</strong> — die Großen kaufen bereits SLAM-Navigation auf (ABB → Sevensense, 2024).</p></div>
+        </div>
+        <div class="reveal" style="margin-top:var(--content-gap); border-left:4px solid var(--orange); background:linear-gradient(90deg, rgba(235,93,48,.12), rgba(235,93,48,.03)); border-radius:0 12px 12px 0; padding:clamp(.7rem,1.6vw,1.15rem) clamp(1rem,2.2vw,1.5rem);">
+            <p style="font-size:clamp(.82rem,1.5vw,1.12rem); color:#eef2f6; line-height:1.45;"><strong class="o">Der europäische Dark Horse im Bereich AGV/AMR.</strong> Unser Vorsprung: <strong>technologisch überlegen, schneller in der Implementierung, zuverlässig</strong> — dank <strong>100% eigenem Know-how</strong>: ein eigener 3D-LiDAR-Algorithmus, eigene Navigation, eigene Fahrzeuge. Und wir liefern einen <strong>Gesamtprozess</strong> — nicht nur AGV-Roboter, sondern wir konzipieren und entwickeln die gesamte Peripherie für den Transport von Rohstoffen, Fertigware und für den Materialfluss im Lager.</p>
+        </div>
+    </div>
+    <div class="pageno">03 / WHY NOW</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 4 — ROZWIĄZANIE ============ -->
+<!-- NOTATKA: 3 filary rozwiązania. Każda cecha = korzyść (zasada VC: tech→benefit). Hero: cena=taśma magnetyczna to disruptor. -->
+<section class="slide" id="s4">
+    <span class="section-num decorative">03</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Lösung · innovative 3D-LiDAR-Navigation</div>
+        <h2 class="reveal">Die Qualität von Premium-Systemen — <span class="o">zum Preis eines Magnetbands</span>.</h2>
+        <p class="lead reveal" style="max-width:98ch;">Ein eigener 3D-SLAM-Algorithmus kombiniert das direkte Matching der LiDAR-Scans gegen die Karte (NDT) mit einem Bewegungsmodell — eine stabile Lokalisierung <strong>ohne Marker und ohne Odometrie</strong>, auf wirtschaftlicher Hardware <strong>ohne GPU</strong>.</p>
+        <div class="two" style="margin-top:var(--content-gap);">
+            <div class="reveal">
+                <ul class="dlist">
+                    <li><strong>Niedrige Kosten, hohe Skalierbarkeit</strong> — Qualität wie bei teuren Lasersystemen, bei Kosten nahe einem Magnetband. Das verändert die Wirtschaftlichkeit der Automatisierung grundlegend und ermöglicht Masseninstallationen.</li>
+                    <li><strong>Hohe Lokalisierungsgenauigkeit</strong> — eine präzise Umgebungskarte und eine Position mit Zentimetergenauigkeit, vergleichbar mit den besten, teureren Systemen.</li>
+                    <li><strong>Robustheit gegenüber Umgebungsänderungen</strong> — der vollständige 3D-Scan sorgt dafür, dass der Roboter bei Änderungen des Hallenlayouts oder neuen Hindernissen nicht die Orientierung verliert; der Algorithmus passt sich kontinuierlich an, Betrieb ohne Stillstände.</li>
+                    <li><strong>Einfache Hardware, große Möglichkeiten</strong> — alles auf 2 günstigen 3D-Scannern (~659&nbsp;$/Stück) und einem gewöhnlichen PC (~900&nbsp;$). Ohne kostspielige Sensoren und ohne Spezialcomputer.</li>
+                </ul>
+            </div>
+            <div class="reveal" style="text-align:center;">
+                <img src="../assets/solution-hero.png" alt="AGV mit 3D-LiDAR-Navigation beim Scannen der Halle" style="width:100%; border-radius:12px; max-height:min(52vh,440px); object-fit:cover; box-shadow:0 12px 32px rgba(0,0,0,.55);">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin-top:.5em;">Ein AGV mit unserer Navigation scannt die Halle in Echtzeit in 3D</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">04 / SOLUTION</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 5 — JAK TO DZIAŁA (overview wizualny) ============ -->
+<!-- NOTATKA: Slajd-most do algorytmu. Wizualizacja chmury punktów z artykułu (page3). DocSend: product slide dostaje dużo uwagi — pokazać "magię" wizualnie. -->
+<section class="slide" id="s5">
+    <div class="slide-content">
+        <div class="eyebrow reveal">Wie es funktioniert</div>
+        <div class="two">
+            <div>
+                <h2 class="reveal">Der Roboter erstellt und liest eine <span class="o">3D-Karte in Echtzeit</span>.</h2>
+                <ul class="dlist reveal">
+                    <li><strong>LiDAR Livox Mid360</strong> — sphärisches Abtastmuster 360°, erfasst <strong>99% der Umgebung in 1 Sekunde</strong> (vollständiges 3D-Modell selbst ohne Bewegung).</li>
+                    <li><strong>Fusion von LiDAR + IMU</strong> — die IMU als interner Kompass; Orientierung aus dem Madgwick-Filter.</li>
+                    <li><strong>100 Hz</strong> — Positionsaktualisierung alle <strong>&lt;10 ms</strong>, kontinuierliche Relokalisierung während der Fahrt bis 2 m/s.</li>
+                    <li><strong>Die Karte aktualisiert sich selbst</strong> — ohne vorheriges „Anlernen" des Raums.</li>
+                </ul>
+            </div>
+            <div class="reveal" style="text-align:center;">
+                <img src="../assets/pointcloud-route.png" alt="3D-Karte + AGV-Route" style="width:100%; max-height:min(27vh,235px); object-fit:contain; filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin:.25em 0 .7em;">3D-Karte der Halle + AGV-Route (blau) — erstellt durch unser SLAM</p>
+                <img src="../assets/pointcloud-3d.png" alt="3D-Punktwolke — Perspektive" style="width:100%; max-height:min(27vh,235px); object-fit:contain; filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin-top:.25em;">Vollständiger 3D-Scan — dichte Punktwolke der Umgebung</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">05 / PRODUCT</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 6 — ALGORYTM (4 punkty matematyka geniusza) ============ -->
+<!-- NOTATKA: Esencja = algorytm lokalizacji. Język ludzki, 4 punkty. Źródło: artykuł dr. Będkowskiego. Research VC: głęboka technika do appendiksu, ale tu pokazujemy MOAT zrozumiale. -->
+<section class="slide" id="s6">
+    <div class="slide-content">
+        <div class="eyebrow reveal">Lokalisierungsalgorithmus · das Herz der Technologie</div>
+        <h2 class="reveal">Vier Entscheidungen, die den Vorsprung sichern.</h2>
+        <div class="two" style="margin-top:var(--content-gap);">
+            <div class="reveal">
+                <ul class="dlist">
+                    <li><strong>① Feature-less SLAM</strong> — legt die gesamte dichte Punktwolke direkt auf die Karte (Scan-to-Map), ohne Marker → Robustheit gegenüber Szenenänderungen.</li>
+                    <li><strong>② NDT statt „Punkt-zu-Punkt"</strong> — ein Zellengitter, beschrieben durch eine Normalverteilung; das Matching = Maximierung der Wahrscheinlichkeit. Schneller als ICP.</li>
+                    <li><strong>③ Fusion mit Bewegungsmodell + IMU</strong> — das Ergebnis ist stets beschränkt und stabil (was Fast-LIO2 nicht garantiert); kein Drift durch Schlupf.</li>
+                    <li><strong>④ 1 CPU-Kern · null GPU</strong> — analytische Jacobi-Matrizen (SymPy) auf Eigen, &lt;10 ms/Update → drastisch niedrigere Kosten.</li>
+                </ul>
+            </div>
+            <div class="reveal" style="text-align:center;">
+                <img src="../assets/pointcloud-3d.png" alt="3D-Punktwolke" style="width:100%; max-height:min(38vh,300px); object-fit:contain; filter:drop-shadow(0 8px 16px rgba(0,0,0,.5));">
+                <div style="display:flex; align-items:center; gap:.8em; justify-content:center; margin-top:.5em;">
+                    <img src="../assets/livox.png" alt="Livox MID-360" style="height:clamp(40px,7vh,66px); width:auto; filter:drop-shadow(0 4px 9px rgba(0,0,0,.5));">
+                    <p class="mono" style="font-size:var(--small-size); color:var(--muted); text-align:left; max-width:30ch;">Livox MID-360 — non-repetitive scanning, 99% der Umgebung in 1 s</p>
+                </div>
+            </div>
+        </div>
+        <p class="reveal mono" style="margin-top:var(--content-gap); font-size:var(--small-size); color:var(--muted);">Eigener Myzer-Algorithmus — Matching der 3D-Punktwolke (NDT) + IMU, vollständige Lokalisierung ohne GPU, ohne Marker, ohne Odometrie.</p>
+    </div>
+    <div class="pageno">06 / ALGORITHMUS</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 7 — NAVIGATION BOX (hardware) ============ -->
+<!-- NOTATKA: Produkt fizyczny. Research VC: hardware potrzebuje "product evidence" (zdjęcia z linii), nie rendery. TODO: zdjęcie realnego Navigation Box. -->
+<section class="slide" id="s7">
+    <span class="section-num decorative">04</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Produkt</div>
+        <h2 class="reveal">„Navigation Box" — montieren, losfahren.</h2>
+        <div class="two">
+            <div>
+                <p class="lead reveal" style="max-width:52ch;">Ein fertiges, getestetes Modul: Sensoren + Recheneinheit + unsere Navigationssoftware. Montage auf <strong>jedes beliebige AGV/AMR-Fahrzeug</strong> ohne langwierige Integration.</p>
+                <div class="statrow reveal" style="margin-top:var(--content-gap);">
+                    <div class="stat"><div class="num">~659$</div><div class="lbl">pro 3D-Scanner ×2</div></div>
+                    <div class="stat"><div class="num">~900$</div><div class="lbl">Standard-PC</div></div>
+                    <div class="stat"><div class="num y">0×</div><div class="lbl">GPU / Spezial-Compute</div></div>
+                </div>
+            </div>
+            <div class="reveal">
+                <ul class="dlist">
+                    <li><strong>Plug-and-Play</strong> — verwandelt ein bestehendes Fahrzeug in einen autonomen Roboter.</li>
+                    <li><strong>Ohne Infrastruktur</strong> — keine Bänder, Magnete, Reflektoren oder Bodenleitungen.</li>
+                    <li><strong>3D-Umgebung an Bord</strong> — Mapping und Routenerstellung startbereit.</li>
+                </ul>
+                <div class="reveal" style="margin-top:var(--content-gap); text-align:center;">
+                    <img src="../assets/agv-bsh-real.jpg" alt="AGV Myzer All-in-One in der Fabrik" style="width:100%; border-radius:12px; max-height:min(54vh,440px); object-fit:contain; box-shadow:0 12px 30px rgba(0,0,0,.5);">
+                    <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin-top:.4em;">AGV Myzer All-in-One mit unserer Navigation — realer Betrieb in der Halle (2× Livox + Mini-PC ohne GPU)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">07 / NAVIGATION BOX</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 8 — PORÓWNANIE KOSZTÓW ============ -->
+<!-- NOTATKA: Z starego decku. Navigation Box ~2218$ vs taśma 1000m ~10260$ vs 3D LiDAR liniowy >5000$/skaner. To unit-economics disruptor. TODO: zweryfikować liczbę taśmy. -->
+<section class="slide" id="s8">
+    <div class="slide-content">
+        <div class="eyebrow reveal">Wirtschaftlichkeit</div>
+        <h2 class="reveal">Vollwertiges 3D <span class="o">günstiger als ein Magnetband</span>.</h2>
+        <div class="two" style="margin-top:var(--content-gap); align-items:center;">
+            <div class="reveal">
+                <div class="cost" style="margin-top:0;">
+                    <div class="cost-row us">
+                        <div class="cost-lab">Navigation Box<span>3D-LiDAR — unsere Lösung</span></div>
+                        <div class="cost-item"><img src="../assets/livox.png" alt="Livox"><span class="pr">610 € ×2</span></div>
+                        <div class="cost-op">+</div>
+                        <div class="cost-item"><img src="../assets/computer.png" alt="Mini-PC"><span class="pr">835 €</span></div>
+                        <div class="cost-op">=</div>
+                        <div class="cost-tot">2 055 €</div>
+                    </div>
+                    <div class="cost-row">
+                        <div class="cost-lab">Magnetband<span>Magnetlesekopf + 1000 m Band</span></div>
+                        <div class="cost-item"><img src="../assets/line-reader.png" alt="Magnetspur-Lesekopf 880 € netto"><span class="pr">880 € ×2</span></div>
+                        <div class="cost-op">+</div>
+                        <div class="cost-item"><img src="../assets/tape.png" alt="Band"><span class="pr">8,20 €/m</span></div>
+                        <div class="cost-op">=</div>
+                        <div class="cost-tot">9 960 €</div>
+                    </div>
+                </div>
+                <div class="cost-save" style="margin-top:var(--content-gap);">
+                    <span class="big">−7 905 € / Fahrzeug</span>
+                    <span style="color:#c9d3dd; font-size:var(--body-size);">≈ <strong>79% günstiger</strong> als das Band — vollwertiges 3D statt einer starren 2D-Spur. <span class="o">TCO und Payback &lt; 1,5 Jahre.</span></span>
+                </div>
+            </div>
+            <div class="reveal" style="text-align:center;">
+                <img src="../assets/agv-train.png" alt="AGV Smart Tug 2000 All-in-One zieht einen Routenzug" style="width:100%; max-height:min(46vh,360px); object-fit:contain; filter:drop-shadow(0 10px 22px rgba(0,0,0,.55));">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin-top:.4em;">AGV Smart Tug 2000 All-in-One zieht einen Routenzug — zu einem Bruchteil der Bandkosten</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">08 / UNIT ECONOMICS</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 9 — TRAKCJA ============ -->
+<!-- NOTATKA: Research VC: trakcja = najsilniejszy pojedynczy czynnik "tak". Rozdziel technical vs commercial. TODO: metryki BSH. -->
+<section class="slide" id="s9">
+    <span class="section-num decorative">05</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Traktion · Belege</div>
+        <h2 class="reveal">Kein Labordemo — <span class="o">drei reale Installationen</span>.</h2>
+        <div class="two" style="margin-top:var(--content-gap);">
+            <div class="reveal">
+                <div style="position:relative; width:100%; aspect-ratio:16/9; max-height:54vh; border-radius:12px; overflow:hidden; box-shadow:0 12px 30px rgba(0,0,0,.55);">
+                    <iframe src="https://www.youtube.com/embed/xPvhSqAROIE?rel=0" title="Myzer-Roboter im Einsatz" style="position:absolute; inset:0; width:100%; height:100%; border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+                <div class="reveal" style="display:flex; align-items:center; gap:.8em; margin-top:.55em;">
+                    <img src="../assets/qr-film.png" alt="QR — Film mit AGV" style="width:clamp(48px,5.2vw,66px); height:auto; background:#fff; border-radius:8px; padding:4px; flex-shrink:0;">
+                    <p class="mono" style="font-size:var(--small-size); color:var(--muted); line-height:1.45; margin:0;">▶ Unsere AGV im realen Betrieb in der Halle — kein Labordemo.<br><a href="https://youtu.be/xPvhSqAROIE" style="color:var(--orange); text-decoration:none; font-weight:700;">youtu.be/xPvhSqAROIE</a> · QR scannen zum Ansehen</p>
+                </div>
+            </div>
+            <div class="reveal">
+                <div style="display:flex; flex-direction:column; gap:clamp(.5rem,1.3vw,.9rem);">
+                    <div class="card-b" style="display:flex; align-items:center; gap:1em; padding:clamp(.5rem,1.1vw,.8rem) clamp(.7rem,1.4vw,1.05rem);">
+                        <img src="../assets/agv-bsh.png" alt="AGV BSH" style="width:clamp(120px,14.5vw,178px); height:clamp(86px,12.5vh,132px); object-fit:contain; flex-shrink:0;">
+                        <div style="font-size:var(--body-size); color:#c9d3dd; line-height:1.3;"><strong style="color:var(--grey);">BSH · Rzeszów</strong><br><span class="o">2 AGV</span> im 3-Schicht-Betrieb</div>
+                    </div>
+                    <div class="card-b" style="display:flex; align-items:center; gap:1em; padding:clamp(.5rem,1.1vw,.8rem) clamp(.7rem,1.4vw,1.05rem);">
+                        <img src="../assets/agv-nsk.png" alt="AGV NSK" style="width:clamp(120px,14.5vw,178px); height:clamp(86px,12.5vh,132px); object-fit:contain; flex-shrink:0;">
+                        <div style="font-size:var(--body-size); color:#c9d3dd; line-height:1.3;"><strong style="color:var(--grey);">NSK · Wałbrzych</strong><br><span class="o">3 AGV</span> im 3-Schicht-Betrieb</div>
+                    </div>
+                    <div class="card-b" style="display:flex; align-items:center; gap:1em; padding:clamp(.5rem,1.1vw,.8rem) clamp(.7rem,1.4vw,1.05rem);">
+                        <img src="../assets/agv-toyota.png" alt="AGV Toyota" style="width:clamp(120px,14.5vw,178px); height:clamp(86px,12.5vh,132px); object-fit:contain; flex-shrink:0;">
+                        <div style="font-size:var(--body-size); color:#c9d3dd; line-height:1.3;"><strong style="color:var(--grey);">Toyota · Wałbrzych</strong><br><span class="o">Pilot 1 AGV</span> ab VIII 2026</div>
+                    </div>
+                </div>
+                <p style="margin-top:var(--content-gap); color:#c9d3dd; font-size:var(--small-size);"><strong>Validierung:</strong> <span class="o">EnRicH 2023</span> — Auszeichnung für 3D-Mapping (MSAS · Fraunhofer FKIE). Labortests: 20× Mission, Fehler &lt;10 cm, Genauigkeit 1–2 cm, bis 2 m/s.</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">09 / TRAKTION</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 10 — RYNEK ============ -->
+<!-- NOTATKA: Liczby ZWALIDOWANE Perplexity 2026-06-14 (high context, źródła): Interact Analysis AGV+AMR 6,4→15,6 mld$ 2030 CAGR 21% ✓ · GVR AGV 5,93 mld$ 2025 ✓ · IFR 102 900 transport&logistyka 2024 +14% ✓ · ABB→Sevensense ogł. I.2024 (NIE 2026), pełne XI.2025. USUNIĘTO niewspierane 12,8→27,7 mld/9% i niepewny endpoint GVR 11,58/2033. -->
+<section class="slide" id="s10">
+    <span class="section-num decorative">06</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Markt</div>
+        <h2 class="reveal">Ein Markt, der sich <span class="o">bis 2030 verdoppelt</span>.</h2>
+        <div class="statrow reveal" style="margin-top:var(--content-gap);">
+            <div class="stat"><div class="num">15,6 Mrd. $</div><div class="lbl">Markt für mobile Roboter AGV+AMR im Jahr 2030 (von 6,4 Mrd. 2025) · <strong style="color:var(--orange)">CAGR 21%</strong><br><span class="mono" style="opacity:.6">Interact Analysis 2025 · Prognose</span></div></div>
+            <div class="stat"><div class="num y">5,93 Mrd. $</div><div class="lbl">allein der AGV-Markt 2025 — das Segment, in dem wir komplette Fahrzeuge verkaufen<br><span class="mono" style="opacity:.6">Grand View Research 2025</span></div></div>
+            <div class="stat"><div class="num g">102 900</div><div class="lbl">Roboter in Transport &amp; Logistik im Jahr 2024 installiert (+14% J/J) — der härteste Nachfragebeleg<br><span class="mono" style="opacity:.6">IFR World Robotics 2025 ✓</span></div></div>
+        </div>
+        <ul class="dlist reveal" style="margin-top:var(--content-gap); max-width:80ch;">
+            <li><strong>Wir verkaufen komplette, einsatzbereite AGV</strong> — und erschließen einen Markt, in dem Roboter heute zu teuer sind, um sie als Standard einzuführen.</li>
+            <li><strong>Exit-Signal:</strong> <span class="o">ABB hat Sevensense übernommen</span> (angekündigt I.2024, vollständige Übernahme 2025) — genau unsere Kategorie (3D-Nav-SLAM für AMR) wird von den Automatisierungsgiganten aufgekauft.</li>
+        </ul>
+        <div class="reveal" style="margin-top:var(--content-gap); border-left:4px solid var(--orange); background:linear-gradient(90deg, rgba(235,93,48,.12), rgba(235,93,48,.03)); border-radius:0 12px 12px 0; padding:clamp(.7rem,1.5vw,1.1rem) clamp(1rem,2.2vw,1.5rem);">
+            <p style="font-size:clamp(.85rem,1.5vw,1.15rem); color:#eef2f6; line-height:1.4;"><strong class="o">Unser Marktpreis (Polen): 45–55 Tsd. €</strong> für ein komplettes AGV — einsatzbereit, <strong>mit Ladegerät, auf den Kundenprozess vorbereitet</strong>.</p>
+        </div>
+    </div>
+    <div class="pageno">10 / MARKT</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 11 — MODEL BIZNESOWY ============ -->
+<!-- NOTATKA: License + hardware + support. Marża blended 40-60% (NIE 70-85% SaaS). Pokazać jako trajektorię rosnącą. -->
+<section class="slide" id="s11">
+    <span class="section-num decorative">07</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Geschäftsmodell</div>
+        <h2 class="reveal">Ein komplettes AGV mit <span class="o">Marge ×2</span> — null Lizenzen.</h2>
+        <div class="two" style="margin-top:var(--content-gap); align-items:center;">
+            <div class="reveal">
+                <div style="display:grid; gap:clamp(.5rem,1.3vw,.9rem);">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:1em; border-bottom:1px solid var(--line); padding-bottom:.5em;">
+                        <span style="color:#c9d3dd; font-size:var(--body-size);">Herstellkosten des Roboters<br><span class="mono" style="font-size:.78em; color:var(--muted);">Elektronik · Montage · vollständige Deckung der Fabrikkosten</span></span>
+                        <span class="mono" style="font-size:clamp(1.1rem,2.4vw,1.7rem); font-weight:700; color:#c9d3dd; white-space:nowrap;">~25 000 €</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; gap:1em; border-bottom:1px solid var(--line); padding-bottom:.5em;">
+                        <span style="color:#c9d3dd; font-size:var(--body-size);">Verkaufspreis (Markt PL)</span>
+                        <span class="mono" style="font-size:clamp(1.1rem,2.4vw,1.7rem); font-weight:700; color:#c9d3dd; white-space:nowrap;">50–55 000 €</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:1em; background:rgba(235,93,48,.12); border-radius:10px; padding:.45em .85em;">
+                        <span style="color:var(--grey); font-weight:700; font-size:var(--body-size);">Bruttomarge</span>
+                        <span class="mono o" style="font-size:clamp(1.4rem,3.2vw,2.3rem); font-weight:700; white-space:nowrap;">≈ ×2</span>
+                    </div>
+                </div>
+                <div style="margin-top:var(--content-gap); border-left:4px solid var(--orange); background:linear-gradient(90deg, rgba(235,93,48,.1), rgba(235,93,48,.02)); border-radius:0 12px 12px 0; padding:clamp(.6rem,1.3vw,1rem) clamp(.9rem,2vw,1.3rem);">
+                    <p style="font-size:var(--small-size); color:#eef2f6; line-height:1.45;"><strong class="o">Eigene integrierte Hauptplatine</strong> (statt industrieller Komponenten) → Kosten <strong>−7 000 €</strong> pro Roboter → noch höhere Marge.</p>
+                </div>
+                <p class="reveal" style="margin-top:.7em; color:var(--muted); font-size:var(--small-size);">Null Lizenzen, null Abonnement — ein einziger Kauf, ein kompletter, einsatzbereiter Roboter.</p>
+                <p class="reveal" style="margin-top:.5em; color:var(--muted); font-size:clamp(.66rem,1.1vw,.82rem); line-height:1.4;">* Der Preis betrifft das AGV allein — <strong>ohne Implementierungskosten</strong> und ohne eventuelle <strong>zusätzliche Peripherie</strong> (z. B. Wagen, Plattformen), die zur Umsetzung des kompletten Transportprozesses erforderlich ist.</p>
+            </div>
+            <div class="reveal" style="text-align:center;">
+                <img src="../assets/margin.png" alt="Marge ×2" style="width:100%; max-height:min(46vh,360px); object-fit:contain; filter:drop-shadow(0 10px 22px rgba(0,0,0,.5));">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin-top:.4em;">Kosten ~25 Tsd. € → Verkauf 50–55 Tsd. € = Marge ×2</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">11 / MODELL</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 12 — KONKURENCJA ============ -->
+<!-- NOTATKA: DocSend: competition slide = inwestorzy wracają tu wielokrotnie; mylące pozycjonowanie = sygnał alarmowy. Jasna macierz. -->
+<section class="slide" id="s12">
+    <span class="section-num decorative">08</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Positionierung</div>
+        <h2 class="reveal">Wo andere einen Kompromiss eingehen — haben wir <span class="o">beides</span>.</h2>
+        <table class="cmp reveal" style="margin-top:var(--content-gap);">
+            <thead><tr><th>Ansatz</th><th>3D-Genauigkeit</th><th>Kosten</th><th>Dyn. Umgebung</th><th>GPU</th></tr></thead>
+            <tbody>
+                <tr class="row-us"><td>MyFee · NDT+IMU SLAM</td><td class="us">cm ✓</td><td class="us">≈ Magnetband</td><td class="us">Ja ✓</td><td class="us">Nein ✓</td></tr>
+                <tr><td>Magnetband</td><td><span class="cross">Keine (2D)</span></td><td>Hoch (Installation)</td><td><span class="cross">Starr</span></td><td>—</td></tr>
+                <tr><td>2D-SLAM</td><td><span class="cross">Keine</span></td><td>Mittel</td><td><span class="cross">Verliert sich</span></td><td>—</td></tr>
+                <tr><td>Visual SLAM (z. B. Sevensense/ABB)</td><td class="tick">cm ✓</td><td>Hoch</td><td>Ja</td><td><span class="cross">Erfordert GPU</span></td></tr>
+            </tbody>
+        </table>
+        <p class="reveal" style="margin-top:var(--content-gap); max-width:80ch; color:#c9d3dd;">Unser Alleinstellungsmerkmal: <strong>vollwertiges 3D + Robustheit gegenüber Dynamik + Preis eines Magnetbands + null GPU</strong>. Das Fehlen einer GPU ist zugleich ein technischer Vorsprung und ein Kostenhebel (niedrigere BOM als bei Visual-SLAM).</p>
+    </div>
+    <div class="pageno">12 / WETTBEWERB</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 13 — MOAT / IP ============ -->
+<!-- NOTATKA: Slajd obowiązkowy deep-tech (nie ma go w SaaS). KLUCZOWE PYTANIE IP — algorytm z badań dr Będkowskiego/IPPT PAN, projekt open-source. Inwestor zapyta pierwszym pytaniem. -->
+<section class="slide" id="s13">
+    <span class="section-num decorative">09</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Verteidigungsfähigkeit · Moat</div>
+        <h2 class="reveal">Ein Vorsprung, der sich <span class="o">nicht mit Kapital verkürzen lässt</span>.</h2>
+        <div class="cards c4 r2" style="margin-top:var(--content-gap);">
+            <div class="card-b reveal"><img class="agv-img" src="../assets/moat-algo.png" alt="Algorithmischer Moat"><h3>Algorithmischer Moat</h3><p>Der eigene 3D-SLAM läuft <strong>ohne GPU, auf einem einzigen CPU-Kern</strong>. Er lässt sich ohne unser Wissen nicht kopieren — und ist dabei in der Produktion günstiger.</p></div>
+            <div class="card-b reveal"><img class="agv-img" src="../assets/moat-data.png" alt="Daten-Moat"><h3>Daten-Moat</h3><p>Jede Installation füttert das System mit Daten aus dem realen Betrieb (Verkehr, Zyklen, Grenzsituationen). <strong>Je mehr Roboter, desto stärker der Vorsprung.</strong></p></div>
+            <div class="card-b reveal"><img class="agv-img" src="../assets/moat-valid.png" alt="Validierung"><h3>Validierung</h3><p>Die Auszeichnung <strong>EnRicH 2023</strong> und Installationen bei Großkonzernen (BSH, NSK) — der Funktionsnachweis von dritter Seite bestätigt, nicht von uns selbst.</p></div>
+            <div class="card-b reveal"><img class="agv-img" src="../assets/moat-team.png" alt="Team"><h3>Team</h3><p><strong>20 Jahre auf dem Shopfloor, 10 000+ ausgelieferte Systeme.</strong> Wir machen das ein Leben lang — das holt man mit Kapital nicht auf.</p></div>
+        </div>
+        <div class="card-b ip-bar reveal" style="margin-top:var(--content-gap);">
+            <h3>Das IP gehört uns</h3>
+            <p>Der 3D-SLAM-Algorithmus entstand auf Basis <strong>unseres eigenen Know-hows</strong> und über <strong>20 Jahren Erfahrung in der Intralogistik</strong>. Die Navigation bauen und entwickeln wir <strong>mit eigenen Kräften und eigener Finanzierung</strong>, mit einem erfahrenen Team. An Bord haben wir <strong>Wissenschaftler der Spitzenklasse</strong> — sowohl als Mitarbeiter als auch als fest angestellte Berater.</p>
+        </div>
+    </div>
+    <div class="pageno">13 / MOAT &amp; IP</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 14 — ZESPÓŁ ============ -->
+<!-- NOTATKA: DocSend: team slide = dużo uwagi. Domain depth = filtr "czytać dalej". TODO: zdjęcia + role + dr Będkowski jako tech/advisor. -->
+<section class="slide" id="s14">
+    <span class="section-num decorative">10</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Team</div>
+        <h2 class="reveal">Myzer ist kein Start-up — <span class="o">20 Jahre auf dem Shopfloor</span>.</h2>
+        <p class="lead reveal" style="max-width:94ch;">20 Jahre am Markt, Großkonzerne als Kunden. Von Anfang an liefern wir einen <strong>kompletten Transportprozess für Rohstoff und Fertigware</strong>. Ein halbes Leben haben wir auf dem Shopfloor verbracht — wir verstehen Produktion und Lager wie kaum jemand: Intralogistik, Arbeitsplätze, Durchlaufregale, Kitting- und Sequenzwagen, Dutzende Workshops zur Transportoptimierung.</p>
+        <div class="cards c3 r2" style="margin-top:var(--content-gap);">
+            <div class="card-b reveal"><div class="ico">Vertrieb</div><h3>Artur · Mariusz · Tiffany</h3><p>Vertrieb und Beziehungen zu Großkundenkonzernen.</p></div>
+            <div class="card-b reveal"><div class="ico">Konstruktion</div><h3>Krzysztof · Sebastian · Tomasz</h3><p>Erfahrene Konstrukteure von Fahrzeugen und Systemen.</p></div>
+            <div class="card-b reveal"><div class="ico">SPS-Automatisierung</div><h3>Tomasz · Paweł</h3><p>Die SPS-Steuerungsebene — umfangreiche Erfahrung.</p></div>
+            <div class="card-b reveal"><div class="ico">Software · 3D-Navigation</div><h3>Piotr</h3><p>Entwicklung und Aufbau des 3D-Algorithmus sowie der Navigation selbst.</p></div>
+            <div class="card-b reveal"><div class="ico">Wissenschaftliche Begleitung</div><h3>Janusz</h3><p>Wissenschaftlicher Berater — Aufsicht über die Entwicklung der 3D-Navigation, langfristig vertraglich gebundene Zusammenarbeit.</p></div>
+        </div>
+    </div>
+    <div class="pageno">14 / TEAM</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 15 — WIZJA PRODUKTU: ZINTEGROWANA PŁYTA ============ -->
+<!-- NOTATKA: Wątek Artura 14.06 — własna płyta główna zamiast komponentów przemysłowych (Schneider PLC/safety/styczniki) → -7000€/AGV. To "na co zbieramy". Spójne z no-GPU. -->
+<section class="slide" id="s_board">
+    <div class="slide-content">
+        <div class="eyebrow reveal">Produktvision · dafür sammeln wir Kapital</div>
+        <h2 class="reveal">Eine Platine statt eines Industrieschranks — <span class="o">−7 000 € pro AGV</span>.</h2>
+        <div class="two">
+            <div class="reveal">
+                <p class="lead" style="max-width:54ch;">Heute besteht ein AGV aus teuren Industriekomponenten: SPS von Schneider Electric, Sicherheitsmodule, Schütze, Verkabelung. Wir konzipieren <strong>eine einzige Hauptplatine</strong> — wie in einem Saugroboter oder autonomen Rasenmäher — die die gesamte Elektronik und Navigation aufnimmt.</p>
+                <div class="statrow" style="margin-top:var(--content-gap);">
+                    <div class="stat"><div class="num">−7 000 €</div><div class="lbl">Kostenreduktion pro AGV</div></div>
+                    <div class="stat"><div class="num y">1</div><div class="lbl">Platine statt Schrank mit SPS + Safety + Schützen</div></div>
+                </div>
+            </div>
+            <div class="reveal">
+                <ul class="dlist">
+                    <li><strong>Integration statt Zukauf</strong> — ein eigenes Platinendesign ersetzt Industriekomponenten externer Lieferanten.</li>
+                    <li><strong>Margenhebel</strong> — niedrigere BOM pro Roboter + höherer Wert für den AGV-Hersteller.</li>
+                    <li><strong>Im Einklang mit No-GPU</strong> — der Algorithmus läuft auf einer gewöhnlichen CPU, daher benötigt die Platine kein teures Compute, keine Vision und keine induktiven Sensoren.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">15 / PRODUKTVISION</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE — FINANCIALS / UNIT ECONOMICS + SKALOWALNOŚĆ ============ -->
+<!-- NOTATKA: Best practice (Perplexity 2025): financials = przedostatni slajd. Unit economics (ASP/COGS/marża) + 3-letnia projekcja przychodu + założenia. LICZBY RAMP-u ROBOCZE — do potwierdzenia przez Artura. -->
+<section class="slide" id="s_fin">
+    <span class="section-num decorative">11</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Berechnungen · Unit Economics</div>
+        <h2 class="reveal">Jeder Roboter verdient Geld — und die <span class="o">Kosten wachsen langsamer als der Umsatz</span>.</h2>
+        <div class="two" style="margin-top:var(--content-gap); align-items:start;">
+            <div class="reveal">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); letter-spacing:.1em; margin-bottom:.5em;">WIRTSCHAFTLICHKEIT EINES AGV</p>
+                <div class="ue">
+                    <div class="ue-row"><span class="k">Verkaufspreis (ASP)</span><span class="v">45–55 Tsd. €</span></div>
+                    <div class="ue-row"><span class="k">Kosten — Material (BOM)</span><span class="v">~15 Tsd. €</span></div>
+                    <div class="ue-row"><span class="k">Kosten — Arbeit + Fixkosten</span><span class="v">~10 Tsd. €</span></div>
+                    <div class="ue-row hl"><span class="k">Bruttomarge</span><span class="v">~50% · ~25 Tsd. €</span></div>
+                    <div class="ue-row"><span class="k">Eigene Hauptplatine</span><span class="v">−7 000 €/AGV</span></div>
+                    <div class="ue-row"><span class="k">3D-Navigation vs. Magnetband</span><span class="v">−7 905 €/Fzg.</span></div>
+                </div>
+                <p style="margin-top:.8em; font-size:clamp(.72rem,1.25vw,.95rem); color:#9fb0bd; line-height:1.4;">Das Material macht nur <strong>~15 Tsd. €</strong> aus — die übrigen <strong>~10 Tsd. €/AGV decken die Fixkosten</strong> (bei 100 AGV = ~1 Mio. € für OpEx). Eine eigene Platine und die günstige Navigation heben die Marge über 50%.</p>
+            </div>
+            <div class="reveal">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); letter-spacing:.1em; margin-bottom:.5em;">UMSATZ · VERKAUFTE AGV / JAHR</p>
+                <div class="fin-legend"><span><i style="background:#3d4a58;"></i>Kosten</span><span><i style="background:var(--orange);"></i>EBITDA (Gewinn)</span></div>
+                <div class="fin-chart">
+                    <div class="fin-bar"><div class="val">3,0<b> Mio. €</b></div><div class="col" style="height:16%;"><div class="eb" style="height:15%;"></div></div><div class="yr">2027</div><div class="units">60 AGV<b>+0,45M</b></div></div>
+                    <div class="fin-bar"><div class="val">5,0<b> Mio. €</b></div><div class="col" style="height:22%;"><div class="eb" style="height:18%;"></div></div><div class="yr">2028</div><div class="units">100 AGV<b>+0,9M</b></div></div>
+                    <div class="fin-bar"><div class="val">25<b> Mio. €</b></div><div class="col" style="height:58%;"><div class="eb" style="height:22%;"></div></div><div class="yr">2029</div><div class="units">500 AGV<b>+5,5M</b></div></div>
+                    <div class="fin-bar"><div class="val">50<b> Mio. €</b></div><div class="col" style="height:100%;"><div class="eb" style="height:24%;"></div></div><div class="yr">2030</div><div class="units">1 000 AGV<b>+12M</b></div></div>
+                </div>
+                <p style="margin-top:.7em; font-size:clamp(.72rem,1.3vw,.95rem); color:#c9d3dd; line-height:1.4;"><strong>Backlog in Bearbeitung: 6 AGV</strong> (BSH 2 · NSK 3 · Toyota-Pilot). Die Kosten wachsen langsamer als der Umsatz — <strong>OpEx sinkt von 35% auf 26%</strong>, und das EBITDA steigt auf <strong>~24%</strong> bei 1 000 AGV (operativer Hebel).</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">FINANCIALS · UNIT ECONOMICS</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE — PROJEKCJA P&L (obrona przed CFO) ============ -->
+<!-- NOTATKA: Ramp 2027-2030 (60/100/500/1000 AGV) potwierdzony przez Artura 15.06. Koszty wg BENCHMARKÓW instytucji finansowych/OEM (Perplexity: KION/Dematic, Daifuku, Teradyne, Antler, McKinsey): marża brutto 50%, OpEx 35→26% przychodu (dźwignia operacyjna), EBITDA 15→24%. Rentowni od 2027 (Myzer = firma dzialajaca, lean, NIE startup spalajacy kase). -->
+<section class="slide" id="s_pnl">
+    <span class="section-num decorative">11</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Finanzprognose · Basismodell</div>
+        <h2 class="reveal">Umsatz gegen Kosten — <span class="o">profitabel bereits ab 2027</span>.</h2>
+        <table class="pnl reveal" style="margin-top:var(--content-gap);">
+            <thead><tr><th>Mio. € / Jahr</th><th>2027</th><th>2028</th><th>2029</th><th>2030</th></tr></thead>
+            <tbody>
+                <tr><td>Verkaufte AGV</td><td>60</td><td>100</td><td>500</td><td>1 000</td></tr>
+                <tr><td>Umsatz</td><td>3,0</td><td>5,0</td><td>25,0</td><td>50,0</td></tr>
+                <tr><td>Herstellkosten (COGS, 50%)</td><td>−1,5</td><td>−2,5</td><td>−12,5</td><td>−25,0</td></tr>
+                <tr class="r-margin"><td>Bruttomarge</td><td>1,5</td><td>2,5</td><td>12,5</td><td>25,0</td></tr>
+                <tr><td>Betriebskosten (OpEx: 35→26% Ums.)</td><td>−1,05</td><td>−1,6</td><td>−7,0</td><td>−13,0</td></tr>
+                <tr class="r-ebitda"><td>EBITDA <span style="font-weight:400;opacity:.6">(15→24%)</span></td><td class="be">+0,45</td><td class="pos">+0,9</td><td class="pos">+5,5</td><td class="pos">+12,0</td></tr>
+            </tbody>
+        </table>
+        <div class="cards c3" style="margin-top:var(--content-gap);">
+            <div class="finbox reveal"><div class="h">Markt-Sanity-Check</div><p><strong>1 000 AGV (2030) = &lt;1%</strong> der jährlichen Roboterinstallationen in Transport &amp; Logistik (IFR: 102 900 im Jahr 2024). Das ist kein „1% eines riesigen TAM" — es ist ein harter Bottom-up-Wert, ein winziger Ausschnitt des aktiven Marktes.</p></div>
+            <div class="finbox reveal"><div class="h">Kosten — konservativ</div><p>Wir skalieren ausgehend von der <strong>realen Kostenbasis von Myzer</strong>: Bruttomarge <strong>50%</strong>, OpEx sinkt <strong>35→26% des Umsatzes</strong> mit der Skalierung (operativer Hebel). Die Zahlen sind <strong>roh</strong> — ohne Umsatz aus Implementierungen und Peripherie.</p></div>
+            <div class="finbox reveal"><div class="h">Profitabel ab dem Start</div><p><strong>Profitabel ab 2027</strong> (EBITDA +0,45 Mio. €). 5 Mio. € = Betriebskapital (Material vor Bezahlung) + Skalierung 500→1000, <strong>keine Verlustdeckung</strong>. Volle Skalierung → Series A ~2028–29.</p></div>
+        </div>
+    </div>
+    <div class="pageno">FINANCIALS · P&amp;L-PROGNOSE</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 16 — ROADMAPA + USE OF FUNDS ============ -->
+<!-- NOTATKA: Research VC: każdy dolar powiązany z milestone de-riskującym. Kwota: min. 5 mln EUR (Artur 14.06). Use of funds: finansowanie sprzedaży/kapitał obrotowy + rozwój systemu. -->
+<section class="slide" id="s15">
+    <span class="section-num decorative">12</span>
+    <div class="slide-content">
+        <div class="eyebrow reveal">Runde · Seed</div>
+        <h2 class="reveal">Wir sammeln <span class="o">min. 5 Mio. €</span> — zur Finanzierung des Vertriebs und zur Systementwicklung.</h2>
+        <div class="two" style="margin-top:var(--content-gap); align-items:start;">
+            <div class="reveal">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); letter-spacing:.1em; margin-bottom:.6em;">WOFÜR DAS GELD VERWENDET WIRD</p>
+                <div class="uof">
+                    <div class="uof-row"><div class="top"><span class="lab">Vertriebsfinanzierung <span>Betriebskapital — AGV-Produktion vor Zahlung des Kunden</span></span><span class="amt">40% · 2,0 Mio. €</span></div><div class="uof-track"><div class="uof-fill" style="width:40%;"></div></div></div>
+                    <div class="uof-row"><div class="top"><span class="lab">Systementwicklung <span>3D-Navigation, Entscheidungs-KI, eigene Platine</span></span><span class="amt">30% · 1,5 Mio. €</span></div><div class="uof-track"><div class="uof-fill" style="width:30%;"></div></div></div>
+                    <div class="uof-row"><div class="top"><span class="lab">Produktion und Betrieb <span>Skalierung, Zertifizierung ISO 3691-4, Tooling</span></span><span class="amt">20% · 1,0 Mio. €</span></div><div class="uof-track"><div class="uof-fill" style="width:20%;"></div></div></div>
+                    <div class="uof-row"><div class="top"><span class="lab">Team und Vertrieb <span>Teamausbau, Eintritt in weitere Werke</span></span><span class="amt">10% · 0,5 Mio. €</span></div><div class="uof-track"><div class="uof-fill" style="width:10%;"></div></div></div>
+                </div>
+                <p style="margin-top:.8em; color:#c9d3dd; font-size:clamp(.76rem,1.35vw,1.02rem);"><strong>~24–30 Monate Kapital für die Skalierung.</strong> Die Bewertung (Pre-Money) — legen wir mit dem Lead-Investor der Runde fest.</p>
+            </div>
+            <div class="reveal">
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); letter-spacing:.1em; margin-bottom:.6em;">MEILENSTEINE DIESER RUNDE</p>
+                <div class="ms">
+                    <div class="ms-block"><div class="t">BIS 12 MONATE (2027)</div><p>Zertifizierung ISO 3691-4 · eigene Platine in Produktion (−7 000 €/AGV) · <strong>~60 AGV</strong> installiert · Entscheidungs-KI v1 · <strong>Profitabilität</strong>.</p></div>
+                    <div class="ms-block"><div class="t">BIS 24 MONATE (2028)</div><p><strong>~100 AGV/Jahr</strong> · Umsatz <strong>~5 Mio. €</strong> · positives EBITDA (~18%) · weitere Werke · Start von RailShift (Hochregallager).</p></div>
+                </div>
+                <p style="margin-top:.8em; font-size:clamp(.74rem,1.3vw,.98rem); color:#9fb0bd; line-height:1.4;"><strong>Profitabel bereits ab 2027.</strong> 5 Mio. € = Betriebskapital + Skalierung auf ~100 AGV/Jahr. Die Skalierung <strong>500 → 1 000 AGV</strong> (25→50 Mio. €) in 2029–2030 finanzieren wir aus dem Umsatz und einer <strong>Series-A</strong>-Runde.</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">16 / THE ASK</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE 16 — ZAMKNIĘCIE / KONTAKT ============ -->
+<!-- NOTATKA: Zamknięcie z exit-narrative + kontakt. Wizja platformy (wątek ChatGPT/TSV) jako 1 zdanie + pytanie. -->
+<!-- ============ SLIDE — WIZJA 1 / NAJNOWSZY WYNALAZEK ============ -->
+<!-- NOTATKA: Artur 14.06 — nawigacja to pierwszy krok. Najnowszy wynalazek = kompletny transport surowca+wyrobu BEZ człowieka (RailShift dla dużej firmy handlowej, części zamienne). Odwracamy logikę: pojemnik w centrum. Autorski system przetasowania + autorskie pojemniki + roboty nie-humanoidalne (auto load/unload). Źródło treści: railshift_prezentacja. -->
+<section class="slide" id="s_vision">
+    <div class="slide-content">
+        <div class="eyebrow reveal">Vision · neueste Erfindung</div>
+        <h2 class="reveal">Kompletter Transport von Rohstoff und Fertigware — <span class="o">ohne menschliches Zutun</span>.</h2>
+        <div class="two" style="margin-top:var(--content-gap);">
+            <div class="reveal">
+                <p class="lead" style="max-width:54ch;">Die Lokalisierung haben wir bereits gelöst. Unsere <strong>neueste Erfindung</strong> geht weiter: die Ware fließt von der Anlieferung bis zum Versand <strong>ohne menschliche Hände</strong>. Wir drehen die Logik des Lagers um — im Zentrum steht der <strong>Behälter</strong>, und Regal, AGV und Software arbeiten um ihn herum.</p>
+                <ul class="dlist reveal" style="margin-top:var(--content-gap);">
+                    <li><strong>Eigenes Umlagerungssystem</strong> — das Schienenregal liefert den Behälter exakt just-in-time. Modular: 400 Behälter pro Modul, Skalierung und Kosten <strong>linear</strong>, ohne Servicegänge.</li>
+                    <li><strong>Eigene Behälter</strong> — eine eigene Familie (von der Kiste bis zur Gitterbox), konzipiert für einen reibungslosen Materialfluss.</li>
+                    <li><strong>Nicht-humanoide Roboter</strong> — die AGV <strong class="o">be- und entladen automatisch</strong> Kisten und Behälter. Der Mensch berührt die Ware nicht.</li>
+                </ul>
+            </div>
+            <div class="reveal" style="text-align:center; align-self:center;">
+                <div style="background:#fff; border-radius:14px; border-top:4px solid var(--orange); padding:clamp(.5rem,1.3vw,.9rem); box-shadow:0 16px 40px rgba(0,0,0,.55);">
+                    <img src="../assets/rs-system-full.png" alt="Komplettes Materialflusssystem RailShift" style="width:100%; max-height:min(52vh,440px); object-fit:contain; display:block;">
+                </div>
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin-top:.5em;">RailShift — kompletter Fluss von der Anlieferung bis zum Versand</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">VISION · ERFINDUNG</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE — WIZJA 2 / SKALA + ZASTOSOWANIA + KAPITAŁ ============ -->
+<!-- NOTATKA: Mini-markety/supermarkety/regały wysokiego składu na autorskim systemie. Modułowo nie skokowo (Ocado/AutoStore, ale własne IP + open-source bez lock-in). Pierwszy partner: duża firma handlowa (części zamienne). "Znaleźliśmy klucz do następnego problemu" → na rozwój potrzeba kapitału. McKinsey jako potencjał rynkowy. -->
+<section class="slide" id="s_vision2">
+    <div class="slide-content">
+        <div class="eyebrow reveal">Vision · wir skalieren ins Unendliche</div>
+        <h2 class="reveal">Mini-Märkte, Supermärkte und Hochregallager — <span class="o">auf unserem System</span>.</h2>
+        <div class="two" style="margin-top:var(--content-gap); grid-template-columns:0.85fr 1.25fr;">
+            <div class="reveal">
+                <ul class="dlist">
+                    <li>Dieselben Roboter und eigenen Behälter versorgen <strong>Mini-Märkte, Supermärkte und Hochregallager</strong> — mit automatischer Umlagerung der Ware.</li>
+                    <li><strong>Modular, nicht sprunghaft</strong> — wir fügen Module hinzu, statt die Flotte auszutauschen. Skalierung und Kosten linear — eine Ambition wie <strong>Ocado und AutoStore</strong>, aber mit eigenem europäischem IP und offener Software ohne Vendor-Lock-in.</li>
+                    <li><strong>Erster Partner: ein großes Handelsunternehmen für Ersatzteile</strong> — RailShift konzipieren wir gemeinsam für reale Volumina.</li>
+                    <li><strong class="o">Wir haben den Schlüssel zum nächsten Problem</strong> der Intralogistik gefunden — für die Entwicklung dieser Systeme benötigen wir Kapital aus dieser Runde.</li>
+                </ul>
+            </div>
+            <div class="reveal" style="text-align:center; align-self:center;">
+                <div style="background:#fff; border-radius:14px; border-top:4px solid var(--orange); padding:clamp(.5rem,1.3vw,.9rem); box-shadow:0 16px 40px rgba(0,0,0,.6);">
+                    <img src="../assets/rs-blok-full.png" alt="Modulblock eines RailShift-Hochregallagers" style="width:100%; max-height:min(60vh,520px); object-fit:contain; display:block;">
+                </div>
+                <p class="mono" style="font-size:var(--small-size); color:var(--muted); margin-top:.5em; line-height:1.4;">Marktpotenzial (McKinsey): −20…50% Prognosefehler · +7…15% Kapazität ohne CAPEX · −20…30% Bestände</p>
+            </div>
+        </div>
+    </div>
+    <div class="pageno">VISION · SKALA</div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<!-- ============ SLIDE — ZAMKNIĘCIE / KONTAKT ============ -->
+<section class="slide" id="s16">
+    <img src="../assets/myzer_logo_white.png" class="brand-mark" alt="Myzer">
+    <div class="slide-content">
+        <div class="two" style="align-items:center;">
+            <div class="reveal">
+                <div class="eyebrow">Seed-Runde · Kontakt</div>
+                <h1 class="glow" style="margin-top:.3em;">Lassen Sie uns das gemeinsam aufbauen.</h1>
+                <p class="lead" style="margin-top:clamp(1rem,2vw,1.6rem); max-width:52ch;">Werden Sie Teil der Runde, die autonome AGV zum <span class="o">Standard</span> macht — einsatzbereit, einfach zu bedienen, gebaut von einem Team mit <strong>20 Jahren Erfahrung auf dem Shopfloor</strong>.</p>
+                <div class="title-proof" style="margin-top:var(--content-gap);">
+                    <span class="chip">📧 <b>artur.myziak@myzer.pl</b></span>
+                    <span class="chip">📱 +48 696 417 449</span>
+                    <span class="chip">🌐 myzer.pl</span>
+                </div>
+            </div>
+            <div class="reveal" style="text-align:center;">
+                <img src="../assets/globe.png" alt="Myzer weltweit" style="width:100%; max-height:min(56vh,470px); object-fit:contain;">
+                <div style="display:flex; flex-wrap:wrap; gap:.5em 1.3em; justify-content:center; margin-top:.4em;">
+                    <span class="loc">Atlanta</span><span class="loc">Bielawa</span><span class="loc">Berlin</span><span class="loc">Paris</span><span class="loc">Ostrava</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tagline">Everything is <b>possible.</b></div>
+</section>
+
+<script>
+/* === NAWIGACJA: dots, klawiatura, progress, aktywny slajd === */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const navDots = document.getElementById('navDots');
+const progress = document.getElementById('progress');
+const curNo = document.getElementById('curNo');
+const totNo = document.getElementById('totNo');
+totNo.textContent = String(slides.length).padStart(2,'0');
+
+const labels = ['Titel','Problem','Why now','Lösung','Produkt','Algorithmus','Navigation Box','Wirtschaftlichkeit','Traktion','Markt','Modell','Wettbewerb','Moat & IP','Team','Vision: Platine','Financials','P&L-Prognose','The Ask','Vision: Erfindung','Vision: Skala','Kontakt'];
+slides.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.title=(i+1)+'. '+(labels[i]||'');
+    b.addEventListener('click',()=>s.scrollIntoView({behavior:'smooth'}));
+    navDots.appendChild(b);
+});
+const dots=Array.from(navDots.children);
+
+/* IntersectionObserver: aktywuje reveal + aktualizuje UI */
+const io=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+        if(e.isIntersecting && e.intersectionRatio>0.5){
+            const i=slides.indexOf(e.target);
+            slides.forEach(s=>s.classList.remove('is-active'));
+            e.target.classList.add('is-active');
+            dots.forEach((d,j)=>d.classList.toggle('active',j===i));
+            curNo.textContent=String(i+1).padStart(2,'0');
+            progress.style.width=(((i+1)/slides.length)*100)+'%';
+        }
+    });
+},{threshold:[0.5]});
+slides.forEach(s=>io.observe(s));
+slides[0].classList.add('is-active');
+
+/* Klawiatura: strzałki/spacja = nawigacja, Home/End, ESC = pierwszy */
+let idx=0;
+function go(i){ idx=Math.max(0,Math.min(slides.length-1,i)); slides[idx].scrollIntoView({behavior:'smooth'}); }
+window.addEventListener('keydown',(e)=>{
+    if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key)){ e.preventDefault(); go(getCurrent()+1); }
+    else if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); go(getCurrent()-1); }
+    else if(e.key==='Home'){ e.preventDefault(); go(0); }
+    else if(e.key==='End'){ e.preventDefault(); go(slides.length-1); }
+    else if(e.key==='Escape'){ e.preventDefault(); go(0); }
+});
+function getCurrent(){ return slides.findIndex(s=>s.classList.contains('is-active')); }
+</script>
+</body>
+</html>
